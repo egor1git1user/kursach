@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить услугу</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_service.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <h1>Добавление услуги</h1>
+        <nav>
+            <a href="{{ url_for('list_services', project_id=project_id) }}">← Назад к услугам</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <form method="POST" class="form-card" onsubmit="return validateDate()">
+        <input type="text" name="service_type" placeholder="Тип услуги" required>
+
+        <label>Дата выполнения:</label>
+        <input type="date"
+               id="execution_date"
+               name="execution_date"
+               min="{{ project.start_date }}"
+               {% if project.end_date %} max="{{ project.end_date }}" {% endif %}
+               required>
+
+        <p class="hint">Статус по умолчанию: <strong>в процессе</strong></p>
+
+        <button type="submit">Сохранить</button>
+    </form>
+</main>
+
+<script>
+function isValidDateString(dateStr) {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateStr)) return false;
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime()) && dateStr === date.toISOString().split("T")[0];
+}
+
+function validateDate() {
+    const execDate = document.getElementById("execution_date");
+    const selected = execDate.value;
+    const min = execDate.getAttribute("min");
+    const max = execDate.getAttribute("max");
+
+    if (!isValidDateString(selected)) {
+        alert("Неверный формат даты выполнения!");
+        return false;
+    }
+
+    if (min && selected < min) {
+        alert("Дата не может быть раньше начала проекта.");
+        return false;
+    }
+
+    if (max && selected > max) {
+        alert("Дата не может быть позже даты окончания проекта.");
+        return false;
+    }
+
+    return true;
+}
+</script>
+</body>
+</html>
